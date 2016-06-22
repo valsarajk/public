@@ -2,7 +2,7 @@
 ###setting hostname
 printf "\nEnter Hostname:"
 read hostname
-echo $hostname /etc/hostname
+echo $hostname >/etc/hostname
 ##create user name
 groupadd admin
 useradd -g admin vals
