@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 ###setting hostname
 printf "\nEnter Hostname:"
 read hostname
