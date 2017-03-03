@@ -1,0 +1,32 @@
+{
+ "AWSTemplateFormatVersion" : "2010-09-09",
+   "Description" : "Ec2 block device mapping",
+   "Resources" : {
+     "cloudForm1" : {
+   		"Type" : "AWS::EC2::Instance",
+   		"Properties" : {
+      		"BlockDeviceMappings" : [ {
+       			"DeviceName" : "/dev/sda1",
+       			"Ebs" : {"VolumeSize" : "8" }
+       			}],
+      "ImageId" : "ami-69c1e77e",
+      "InstanceType" : "t2.micro",
+      "KeyName" : "vals_cts_aws_key2",
+      "NetworkInterfaces" : [ {
+  "AssociatePublicIpAddress" : true,
+  "DeleteOnTermination" : true,
+  "Description" : "Default NIC",
+  "DeviceIndex" : 0,
+  "GroupSet" : [ "sg-7baa5006" ],
+  "SubnetId" : "subnet-e921fdb2"
+}]
+}
+}
+},
+	"Outputs" : {
+		"PublicIP1" : {
+		"Description" : "Public IP to Connect to the server ",
+		"Value" : { "Fn::GetAtt" : [ "cloudForm1", "PublicIp" ] }	
+		}
+	}
+}

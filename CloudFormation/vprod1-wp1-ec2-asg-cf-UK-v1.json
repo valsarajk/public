@@ -1,0 +1,107 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+	"Description" : "vprod1-wp1 ec2 autoscale elb.",
+	
+	"Resources" : {
+  	 
+  	 "wp1lc" : {
+  	  	"Type" : "AWS::AutoScaling::LaunchConfiguration",
+   	  	"Properties" : {
+      		"AssociatePublicIpAddress" : "false",
+      		"IamInstanceProfile" : "ec2s3",
+      		"ImageId" : "ami-4902523a",
+      		"InstanceType" : "t2.micro",
+      		"KeyName" : "vals-aws-cts-ireland",
+      		"SecurityGroups" : [ "sg-d27cd8b4" ],
+      		"UserData" : { "Fn::Base64" : { "Fn::Join": [ "\n", [ 
+				"#!/bin/bash",
+				"aws s3 sync s3://vdr1-wp1-code/ /var/www/html",
+				"chown -R apache.apache /var/www/html/wp-content",
+				"rm -f /var/spool/cron/root",
+				"cp -f /var/www/html/root /var/spool/cron/root",
+				"service cron.d restart"
+      		
+      			] ]
+      						}
+      					}
+   					}
+				},
+				
+	 "wp1asg" : {
+	  "Type" : "AWS::AutoScaling::AutoScalingGroup",
+   	  "Properties" : {
+      "DesiredCapacity" : "2",
+      "HealthCheckGracePeriod" : 300,
+      "HealthCheckType" : "ELB",
+      "LaunchConfigurationName" : { "Ref" : "wp1lc" },
+      "LoadBalancerNames" : [ "wp1elb" ],
+      "MaxSize" : "2",
+      "MinSize" : "2",
+      "Tags" : [ {
+         "Key" : "Name",
+         "Value" : "vprod1wp1cfasg1",
+         "PropagateAtLaunch" : "false"
+      }, {
+         "Key" : "Application",
+         "Value" : "vprod1-wp1",
+         "PropagateAtLaunch" : "true"
+      } ],
+      "VPCZoneIdentifier" : [  "subnet-f7aceb81", "subnet-2026ae78" ]
+   					}
+				},
+				
+	 "wp1elb" : {
+   		"Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+   		"Properties": {
+      	"CrossZone" : "true",
+     	"HealthCheck" : {
+          "Target" : "HTTP:80/",
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "30",
+          "Timeout" : "5"
+        },
+      	
+      	"LoadBalancerName" : "wp1elb",
+      	"Listeners" : [ {
+          "LoadBalancerPort" : "80",
+          "InstancePort" : "80",
+          "Protocol" : "HTTP"
+        } ],
+      	"Scheme" : "internet-facing",
+      	"Subnets" : [ "subnet-f7aceb81", "subnet-2026ae78" ],
+      	"SecurityGroups" : [ "sg-3c72d65a" ]
+      	
+   				}
+			} ,
+		
+     "DNSRecord" : {
+     	"Type" : "AWS::Route53::RecordSet",
+     	"DependsOn" : [ "wp1elb" ],
+  		"Properties" : {
+     	"HostedZoneName" : "valslabs.com." ,
+     	"Comment" : "Weighted record set for GeoServer",
+     	
+        "Name" :  "blog.valslabs.com." ,
+       	"Type" : "CNAME",        	
+        "TTL" : "900",	
+        "ResourceRecords" : [{ "Fn::GetAtt" : [ "wp1elb", "DNSName" ]}]
+      	}
+  		}	
+				
+				
+				   
+	},
+	
+"Outputs" : {
+    	"URL" : {
+      		"Description" : "The URL of the ELB",
+      		"Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "wp1elb", "DNSName" ]}]]}
+    }
+    }
+
+}     
+	
+	
+	
+	
