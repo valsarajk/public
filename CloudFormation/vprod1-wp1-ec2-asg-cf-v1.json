@@ -9,7 +9,7 @@
    	  	"Properties" : {
       		"AssociatePublicIpAddress" : "false",
       		"IamInstanceProfile" : "ec2s3",
-      		"ImageId" : "ami-69c1e77e",
+      		"ImageId" : "ami-b147e1a7",
       		"InstanceType" : "t2.micro",
       		"KeyName" : "vals_cts_aws_key2",
       		"SecurityGroups" : [ "sg-e9a96694" ],
