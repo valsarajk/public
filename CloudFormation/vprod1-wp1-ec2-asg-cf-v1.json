@@ -1,9 +1,9 @@
 {
 	"AWSTemplateFormatVersion" : "2010-09-09",
 	"Description" : "vprod1-wp1 ec2 autoscale elb.",
-	
+
 	"Resources" : {
-  	 
+
   	 "wp1lc" : {
   	  	"Type" : "AWS::AutoScaling::LaunchConfiguration",
    	  	"Properties" : {
@@ -13,20 +13,21 @@
       		"InstanceType" : "t2.micro",
       		"KeyName" : "vals_cts_aws_key2",
       		"SecurityGroups" : [ "sg-e9a96694" ],
-      		"UserData" : { "Fn::Base64" : { "Fn::Join": [ "\n", [ 
+					"Tags" : [ "Key" : Name, "Value" : webserver],
+      		"UserData" : { "Fn::Base64" : { "Fn::Join": [ "\n", [
 				"#!/bin/bash",
 				"aws s3 sync  s3://vprod1-wp1-code/ /var/www/html",
 				"chown -R apache.apache /var/www/html/wp-content",
 				"rm -f /var/spool/cron/root",
 				"cp -f /var/www/html/root /var/spool/cron/root",
 				"service cron.d restart"
-      		
+
       			] ]
       						}
       					}
    					}
 				},
-				
+
 	 "wp1asg" : {
 	  "Type" : "AWS::AutoScaling::AutoScalingGroup",
    	  "Properties" : {
@@ -49,7 +50,7 @@
       "VPCZoneIdentifier" : [  "subnet-50a2606c", "subnet-a78e05ee" ]
    					}
 				},
-				
+
 	 "wp1elb" : {
    		"Type": "AWS::ElasticLoadBalancing::LoadBalancer",
    		"Properties": {
@@ -61,7 +62,7 @@
           "Interval" : "30",
           "Timeout" : "5"
         },
-      	
+
       	"LoadBalancerName" : "wp1elb",
       	"Listeners" : [ {
           "LoadBalancerPort" : "80",
@@ -71,10 +72,10 @@
       	"Scheme" : "internet-facing",
       	"Subnets" : [ "subnet-50a2606c", "subnet-a78e05ee" ],
       	"SecurityGroups" : [ "sg-7baa5006" ]
-      	
+
    				}
 			} ,
-		
+
      "DNSRecord" : {
      	"Type" : "AWS::Route53::RecordSetGroup",
   		"Properties" : {
@@ -83,19 +84,19 @@
      	"RecordSets" : [
       	{
         	"Name" :  "blog.valslabs.com." ,
-       		"Type" : "CNAME",        	
+       		"Type" : "CNAME",
         	"TTL" : "900",
-        	
+
         	"ResourceRecords" : [{ "Fn::GetAtt" : [ "wp1elb", "DNSName" ]}]
       	}
    	 		]
   		}
-	}		
-				
-				
-				   
+	}
+
+
+
 	},
-	
+
 "Outputs" : {
     	"URL" : {
       		"Description" : "The URL of the ELB",
@@ -103,8 +104,4 @@
     }
     }
 
-}     
-	
-	
-	
-	
+}
