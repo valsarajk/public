@@ -9,11 +9,11 @@
    	  	"Properties" : {
       		"AssociatePublicIpAddress" : "false",
       		"IamInstanceProfile" : "ec2s3",
-      		"ImageId" : "ami-69c1e77e",
+      		"ImageId" : "ami-b147e1a7",
       		"InstanceType" : "t2.micro",
       		"KeyName" : "vals_cts_aws_key2",
       		"SecurityGroups" : [ "sg-e9a96694" ],
-					"Tags" : [ "Key" : Name, "Value" : webserver],
+					"Tags" : [ "Key" : Name, "Value" : vprod1-wp1-webserver],
       		"UserData" : { "Fn::Base64" : { "Fn::Join": [ "\n", [
 				"#!/bin/bash",
 				"aws s3 sync  s3://vprod1-wp1-code/ /var/www/html",
@@ -104,4 +104,12 @@
     }
     }
 
+<<<<<<< HEAD
 }
+=======
+}
+
+
+
+
+>>>>>>> a576761f701a00c36ba4bf85b4b2a5f9131eb9cc
