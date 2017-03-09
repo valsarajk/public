@@ -13,7 +13,6 @@
       		"InstanceType" : "t2.micro",
       		"KeyName" : "vals_cts_aws_key2",
       		"SecurityGroups" : [ "sg-e9a96694" ],
-					"Tags" : { "Key" : "Name", "Value" : "vprod1-wp1-webserver" },
       		"UserData" : { "Fn::Base64" : { "Fn::Join": [ "\n", [
 				"#!/bin/bash",
 				"aws s3 sync  s3://vprod1-wp1-code/ /var/www/html",
