@@ -1,11 +1,13 @@
 #!/usr/bin/python
 import random
+fruits=[]
 def get_random_word():
 	fruits=["apple", "orange", "banana", "grapes", "strawberry", "blackberry", "blueberry", "kiwi", "cranberry", "fig", "raspberry"] 
 	fruit=fruits[random.randint(0, len(fruits) - 1 )]
    	return fruit
 def print_clue (random_fruit):
-	for char in 
+	for char in random_fruit:
+		r_fruit[
 def play_word_game ():
     strikes=0
     max_strikes=3
