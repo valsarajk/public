@@ -31,4 +31,4 @@ of=open(file,'wb')
 of.write(systeminfo)
 of.close
 print ("System Information is written to the JSON file : "+file)
-t
+return (-1)
