@@ -1,0 +1,129 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Description" : "vprod1 app M ",
+    "Parameters" : {
+        "InstanceSize" : {
+            "Type" : "String",
+            "Default" : "t2.micro"
+        },
+        "vpcid" : {
+            "Type" : "String",
+            "Default" : "vpc-732d3c14"
+        },
+        "amiid" : {
+            "Type" : "String",
+            "Default" : "ami-c26770d4"  
+        },
+        "KeyName" : {
+            "Type" : "String",
+            "Default" : "vals_cts_aws_key2"
+        },
+        "az1" : {
+            "Type" : "String",
+            "Default" : "us-east-1a"
+        },
+        "az2" : {
+            "Type" : "String",
+            "Default" : "us-east-1c" 
+        },
+        "az3" : {
+            "Type" : "String",
+            "Default" : "us-east-1d" 
+        },
+        "az4" : {
+            "Type" : "String",
+            "Default" : "us-east-1e" 
+        }
+
+  },
+    "Mappings" : {
+        "subnets" : {
+            "us-east-1a" : {"subnetid" : "subnet-e921fdb2"},
+            "us-east-1c" : {"subnetid" : "subnet-a21ac28f"},
+            "us-east-1d" : {"subnetid" : "subnet-a78e05ee"},
+            "us-east-1e" : {"subnetid" : "subnet-50a2606c"}
+        }
+        
+    },
+    
+    "Resources" : {
+        
+            "vprod1MwebSG" : {
+                "Type" : "AWS::EC2::SecurityGroup",
+                "Properties" : {
+                "GroupDescription" : "Security group for web tier of app M",
+                "VpcId" : {"Ref" : "vpcid"},
+                "SecurityGroupIngress" : [{
+                    "IpProtocol" : "tcp",
+                    "FromPort": "80",
+                    "ToPort" : "80",
+                    "CidrIp" : "0.0.0.0/0"
+                }, 
+                {
+                    "IpProtocol" : "tcp",
+                    "FromPort": "443",
+                    "ToPort" : "443",
+                    "CidrIp" : "0.0.0.0/0"
+                },
+                {
+                    "IpProtocol" : "tcp",
+                    "FromPort": "22",
+                    "ToPort" : "22",
+                    "CidrIp" : "69.30.214.230/30"                      
+                }]
+                }
+            },
+           
+        "mweb01" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+            "InstanceType" : {"Ref" : "InstanceSize"},
+            "ImageId" : {"Ref" : "amiid"} ,
+            "KeyName" : {"Ref" : "KeyName"} ,
+            "AvailabilityZone" : {"Ref" : "az1"},
+            "SubnetId" : {"Fn::FindInMap" : ["subnets",{"Ref" : "az1" }, "subnetid" ]},
+            "SecurityGroupIds" : [{"Fn::GetAtt" : [ "vprod1MwebSG", "GroupId"]}],
+            "BlockDeviceMappings" : [
+               {
+                  "DeviceName" : "/dev/sda1",
+                  "Ebs" : {
+                     "VolumeType" : "gp2",
+                     "VolumeSize" : "8"
+                  }
+               }
+            ]
+         }
+        },
+       "mweb02" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+            "InstanceType" : {"Ref" : "InstanceSize"},
+            "ImageId" : {"Ref" : "amiid"} ,
+            "KeyName" : {"Ref" : "KeyName"} ,
+            "AvailabilityZone" : {"Ref" : "az2"},
+            "SubnetId" : {"Fn::FindInMap" : ["subnets",{"Ref" : "az2" }, "subnetid" ]},
+            "SecurityGroupIds" : [{"Fn::GetAtt" : [ "vprod1MwebSG", "GroupId"]}],
+            "BlockDeviceMappings" : [
+               {
+                  "DeviceName" : "/dev/sda1",
+                  "Ebs" : {
+                     "VolumeType" : "gp2",
+                     "VolumeSize" : "8"
+                  }
+               }
+            ]
+         }
+        }
+    },
+    
+    "Outputs" : {
+        
+        "mweb01PublicIP" : {
+            "Value" :  { "Fn::GetAtt" : ["mweb01", "PublicIp"] }
+        },
+        "mweb02PublicIP" : {
+            "Value" : { "Fn::GetAtt" : ["mweb02", "PublicIp" ] }
+        }
+    }
+    
+}
